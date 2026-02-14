@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "651126058720",
+    "project_id": "finpulse-39e65",
+    "storage_bucket": "finpulse-39e65.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:651126058720:android:17d11dab7730991f6d6a85",
+        "android_client_info": {
+          "package_name": "com.example.expense_analyzer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "651126058720-8dcv5i2a6n8bdreh7j31s2f9qml5tsov.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.expense_analyzer",
+            "certificate_hash": "e4124368950d143d58157ed66bc50c08a0506dd7"
+          }
+        },
+        {
+          "client_id": "651126058720-nq3h27kt0s569eik7r0el143knicdoki.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLhJlp9ELvO5L6GI8h3RWK24Mo51Jwb2U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "651126058720-nq3h27kt0s569eik7r0el143knicdoki.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
