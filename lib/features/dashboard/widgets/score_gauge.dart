@@ -85,7 +85,7 @@ class _ScoreGaugeState extends State<ScoreGauge>
                                 fontWeight: FontWeight.w500,
                                 letterSpacing: 0.5,
                                 height: 1, // 🔥 CRITICAL
-                                color: Color(0xFF334155),
+                                color: Color(0xFFFFFFFF),
                             ),
                             textHeightBehavior: const TextHeightBehavior(
                                 applyHeightToFirstAscent: false,
@@ -144,7 +144,7 @@ class _GaugePainter extends CustomPainter {
 
     /// Background ring
     final backgroundPaint = Paint()
-      ..color = const Color(0xFFE9EEF5)
+      ..color = const Color(0xFF334155)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 8
       ..strokeCap = StrokeCap.round;
@@ -153,7 +153,7 @@ class _GaugePainter extends CustomPainter {
 
     /// Progress ring
     final progressPaint = Paint()
-      ..color = const Color(0xFF334155)
+      ..color = const Color(0xFFFFFFFF)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 8
       ..strokeCap = StrokeCap.round;

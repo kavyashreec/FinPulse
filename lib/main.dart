@@ -1,9 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'app.dart';
+import 'features/navigation/main_navigation_screen.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+void main() {
   runApp(const FinPulseApp());
+}
+
+class FinPulseApp extends StatelessWidget {
+  const FinPulseApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+
+      theme: ThemeData(
+        useMaterial3: true,
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: const Color(0xFF040B16),
+      ),
+
+      home: const MainNavigationScreen(),
+    );
+  }
 }

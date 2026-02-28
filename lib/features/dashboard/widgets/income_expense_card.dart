@@ -1,31 +1,42 @@
 import 'package:flutter/material.dart';
 
-class IncomeExpenseCard extends StatelessWidget {
+class IncomeExpenseCard extends StatefulWidget {
   const IncomeExpenseCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+  State<IncomeExpenseCard> createState() => _IncomeExpenseCardState();
+}
 
+class _IncomeExpenseCardState extends State<IncomeExpenseCard> {
+
+  String selectedMonth = "FEB";
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.fromLTRB(26, 24, 26, 22),
       decoration: BoxDecoration(
-        color: theme.cardColor,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(28),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFF0C1A2B),
+            Color(0xFF08121F),
+          ],
+        ),
         boxShadow: [
-          if (!isDark)
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 25,
-              offset: const Offset(0, 12),
-            ),
+          BoxShadow(
+            color: const Color(0xFF1E3A8A).withOpacity(0.25),
+            blurRadius: 40,
+            spreadRadius: -10,
+            offset: const Offset(0, 25),
+          ),
         ],
-        border: isDark
-            ? Border.all(
-                color: Colors.white.withOpacity(0.06),
-              )
-            : null,
+        border: Border.all(
+          color: Colors.white.withOpacity(0.05),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -34,21 +45,19 @@ class IncomeExpenseCard extends StatelessWidget {
           /// HEADER
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+            children: const [
               Text(
                 "Income vs Expense",
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.2,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  color: Color(0xFF94A3B8),
                 ),
               ),
               Row(
-                children: const [
-                  Icon(
-                    Icons.trending_up,
-                    color: Color(0xFF22C55E),
-                    size: 16,
-                  ),
+                children: [
+                  Icon(Icons.trending_up,
+                      color: Color(0xFF22C55E), size: 18),
                   SizedBox(width: 4),
                   Text(
                     "+12%",
@@ -62,59 +71,101 @@ class IncomeExpenseCard extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: 18),
+          const SizedBox(height: 22),
 
-          /// MAIN VALUE
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                "\$4,200",
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(width: 6),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 2),
-                child: Text(
-                  "/ \$2,850",
+          /// AMOUNT
+          const Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: "\$4,200",
                   style: TextStyle(
-                    fontSize: 18,
-                    color: isDark
-                        ? Colors.white.withOpacity(0.5)
-                        : Colors.grey.shade500,
+                    fontSize: 34,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
                   ),
                 ),
-              ),
-            ],
+                TextSpan(
+                  text: "  /  ",
+                  style: TextStyle(
+                    fontSize: 24,
+                    color: Color(0xFF475569),
+                  ),
+                ),
+                TextSpan(
+                  text: "\$2,850",
+                  style: TextStyle(
+                    fontSize: 28,
+                    color: Color(0xFF94A3B8),
+                  ),
+                ),
+              ],
+            ),
           ),
 
-          const SizedBox(height: 26),
+          const SizedBox(height: 28),
 
-          /// MONTH LABELS
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              _monthLabel("JAN", theme),
-              _monthLabel("FEB", theme),
-              _monthLabel("MAR", theme),
-              _monthLabel("APR", theme),
-              _monthLabel("MAY", theme),
-            ],
+          /// MONTH SELECTOR (FIXED ALIGNMENT + INTERACTIVE)
+          SizedBox(
+            height: 42,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              itemCount: _months.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 26),
+              itemBuilder: (context, index) {
+                final month = _months[index];
+                final isSelected = month == selectedMonth;
+
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      selectedMonth = month;
+                    });
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 8),
+                    decoration: isSelected
+                        ? BoxDecoration(
+                            color: const Color(0xFF1F2F45),
+                            borderRadius: BorderRadius.circular(30),
+                          )
+                        : null,
+                    child: Text(
+                      month,
+                      style: TextStyle(
+                        color: isSelected
+                            ? Colors.white
+                            : const Color(0xFF64748B),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
         ],
       ),
     );
   }
-
-  Widget _monthLabel(String text, ThemeData theme) {
-    return Text(
-      text,
-      style: theme.textTheme.bodySmall?.copyWith(
-        letterSpacing: 1,
-        fontWeight: FontWeight.w500,
-      ),
-    );
-  }
 }
+
+/// ALL MONTHS
+const List<String> _months = [
+  "JAN",
+  "FEB",
+  "MAR",
+  "APR",
+  "MAY",
+  "JUN",
+  "JUL",
+  "AUG",
+  "SEP",
+  "OCT",
+  "NOV",
+  "DEC",
+];

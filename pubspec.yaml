@@ -43,6 +43,7 @@ dependencies:
   fl_chart: ^0.68.0
   percent_indicator: ^4.2.3
   flutter_animate: ^4.5.0
+  intl: ^0.18.1
   
 
 
