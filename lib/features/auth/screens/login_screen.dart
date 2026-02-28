@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'home_screen.dart';
 import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -24,11 +23,8 @@ class _LoginScreenState extends State<LoginScreen> {
         email: usernameController.text.trim(),
         password: passwordController.text.trim(),
       );
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
-      );
+      // Do nothing.
+      // AuthWrapper will automatically redirect.
     } catch (e) {
       print("Login Error: $e");
     }
@@ -50,10 +46,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
     await _auth.signInWithCredential(credential);
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
-    );
   }
 
   @override
