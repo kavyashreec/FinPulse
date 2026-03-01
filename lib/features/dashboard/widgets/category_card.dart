@@ -10,27 +10,31 @@ class CategoryCard extends StatefulWidget {
 class _CategoryCardState extends State<CategoryCard> {
   String selectedTab = "Week";
 
-  /// Dummy Data
   final List<Map<String, dynamic>> weeklyData = [
-    {"title": "Shopping", "tx": "12 Transactions", "amount": -450.00},
-    {"title": "Bills", "tx": "4 Transactions", "amount": -1200.00},
-    {"title": "Food & Drink", "tx": "28 Transactions", "amount": -320.50},
-    {"title": "Travel", "tx": "1 Transaction", "amount": -850.00},
-    {"title": "Transport", "tx": "15 Transactions", "amount": -145.00},
+    {"title": "Bills",         "tx": "4 Transactions",  "amount": -1200.00},
+    {"title": "Shopping",      "tx": "12 Transactions", "amount": -450.00},
+    {"title": "Groceries",     "tx": "8 Transactions",  "amount": -210.80},
+    {"title": "Food",          "tx": "28 Transactions", "amount": -320.50},
+    {"title": "Transport",     "tx": "15 Transactions", "amount": -145.00},
+    {"title": "Entertainment", "tx": "5 Transactions",  "amount": -89.99},
+    {"title": "Health",        "tx": "3 Transactions",  "amount": -175.00},
+    {"title": "Income",        "tx": "2 Transactions",  "amount": 3200.00},
   ];
 
   final List<Map<String, dynamic>> monthlyData = [
-    {"title": "Shopping", "tx": "42 Transactions", "amount": -1650.00},
-    {"title": "Bills", "tx": "10 Transactions", "amount": -2800.00},
-    {"title": "Food & Drink", "tx": "76 Transactions", "amount": -980.50},
-    {"title": "Travel", "tx": "3 Transactions", "amount": -1450.00},
-    {"title": "Transport", "tx": "52 Transactions", "amount": -520.00},
+    {"title": "Bills",         "tx": "10 Transactions", "amount": -3400.00},
+    {"title": "Shopping",      "tx": "42 Transactions", "amount": -1650.00},
+    {"title": "Groceries",     "tx": "24 Transactions", "amount": -840.60},
+    {"title": "Food",          "tx": "76 Transactions", "amount": -980.50},
+    {"title": "Transport",     "tx": "52 Transactions", "amount": -520.00},
+    {"title": "Entertainment", "tx": "18 Transactions", "amount": -360.00},
+    {"title": "Health",        "tx": "9 Transactions",  "amount": -620.00},
+    {"title": "Income",        "tx": "4 Transactions",  "amount": 9800.00},
   ];
 
   @override
   Widget build(BuildContext context) {
-    final data =
-        selectedTab == "Week" ? weeklyData : monthlyData;
+    final data = selectedTab == "Week" ? weeklyData : monthlyData;
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 12),
@@ -40,10 +44,7 @@ class _CategoryCardState extends State<CategoryCard> {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF0C1A2B),
-            Color(0xFF08121F),
-          ],
+          colors: [Color(0xFF0C1A2B), Color(0xFF08121F)],
         ),
         boxShadow: [
           BoxShadow(
@@ -53,32 +54,27 @@ class _CategoryCardState extends State<CategoryCard> {
             offset: const Offset(0, 25),
           ),
         ],
-        border: Border.all(
-          color: Colors.white.withOpacity(0.05),
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.05)),
       ),
       child: Column(
         children: [
 
-          /// HEADER
+          /// ── HEADER ─────────────────────────────────────────────────
           Row(
             children: [
-              Expanded(
+              const Expanded(
                 child: Text(
                   "Expense Split",
-                  style: const TextStyle(
-                    fontSize: 18, // reduced
+                  style: TextStyle(
+                    fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    letterSpacing: -0.2, // tighter spacing
+                    letterSpacing: -0.2,
                     color: Colors.white,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-
               const SizedBox(width: 10),
-
-              /// SMALLER TOGGLE
               Container(
                 padding: const EdgeInsets.all(3),
                 decoration: BoxDecoration(
@@ -98,61 +94,61 @@ class _CategoryCardState extends State<CategoryCard> {
 
           const SizedBox(height: 26),
 
-          /// CATEGORY LIST
+          /// ── CATEGORY LIST ───────────────────────────────────────────
           ...data.asMap().entries.map((entry) {
             final item = entry.value;
             final isLast = entry.key == data.length - 1;
+            final isIncome = (item["amount"] as double) > 0;
 
-            return Padding(
-              padding:
-                  EdgeInsets.only(bottom: isLast ? 0 : 22),
-              child: Row(
-                children: [
-
-                  /// ICON
-                  _iconFor(item["title"]),
-
-                  const SizedBox(width: 16),
-
-                  /// TEXT
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item["title"],
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
+            return Column(
+              children: [
+                Row(
+                  children: [
+                    _iconFor(item["title"]),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            item["title"],
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          item["tx"],
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: Color(0xFF64748B),
+                          const SizedBox(height: 4),
+                          Text(
+                            item["tx"],
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: Color(0xFF64748B),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-
-                  /// AMOUNT
-                  Text(
-                    "\$${item["amount"].toStringAsFixed(2)}",
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                    Text(
+                      "${isIncome ? '+' : '-'}\$${(item["amount"] as double).abs().toStringAsFixed(2)}",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: isIncome
+                            ? const Color(0xFF22C55E)
+                            : Colors.white,
+                      ),
                     ),
-                  ),
+                  ],
+                ),
+                if (!isLast) ...[
+                  const SizedBox(height: 10),
+                  Divider(color: Colors.white.withOpacity(0.05), height: 1),
+                  const SizedBox(height: 10),
                 ],
-              ),
+              ],
             );
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -160,17 +156,11 @@ class _CategoryCardState extends State<CategoryCard> {
 
   Widget _toggle(String label) {
     final bool isSelected = selectedTab == label;
-
     return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedTab = label;
-        });
-      },
+      onTap: () => setState(() => selectedTab = label),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
-        padding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: isSelected
             ? BoxDecoration(
                 color: const Color(0xFF1F2F45),
@@ -180,10 +170,9 @@ class _CategoryCardState extends State<CategoryCard> {
         child: Text(
           label,
           style: TextStyle(
-            fontSize: 13, // smaller toggle text
-            color: isSelected
-                ? Colors.white
-                : const Color(0xFF64748B),
+            fontSize: 13,
+            color:
+                isSelected ? Colors.white : const Color(0xFF64748B),
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -193,34 +182,36 @@ class _CategoryCardState extends State<CategoryCard> {
 
   Widget _iconFor(String title) {
     switch (title) {
-      case "Shopping":
-        return _icon(Icons.shopping_cart,
-            const Color(0xFFFF8A34));
       case "Bills":
-        return _icon(
-            Icons.receipt_long, const Color(0xFF3B82F6));
-      case "Food & Drink":
-        return _icon(
-            Icons.restaurant, const Color(0xFFFF6B4A));
-      case "Travel":
-        return _icon(Icons.flight, const Color(0xFF8B5CF6));
+        return _icon(Icons.receipt_long_rounded,       const Color(0xFF3B82F6));
+      case "Shopping":
+        return _icon(Icons.shopping_cart_rounded,      const Color(0xFFFF8A34));
+      case "Groceries":
+        return _icon(Icons.local_grocery_store_rounded,const Color(0xFF22C55E));
+      case "Food":
+        return _icon(Icons.restaurant_rounded,         const Color(0xFFEAB308));
       case "Transport":
-        return _icon(
-            Icons.directions_car, const Color(0xFF22C55E));
+        return _icon(Icons.directions_car_rounded,     const Color(0xFF8B5CF6));
+      case "Entertainment":
+        return _icon(Icons.movie_rounded,              const Color(0xFFEC4899));
+      case "Health":
+        return _icon(Icons.favorite_rounded,           const Color(0xFFEF4444));
+      case "Income":
+        return _icon(Icons.attach_money_rounded,       const Color(0xFF22C55E));
       default:
-        return _icon(Icons.circle, Colors.grey);
+        return _icon(Icons.circle,                     Colors.grey);
     }
   }
 
   Widget _icon(IconData icon, Color color) {
     return Container(
-      height: 44,
-      width: 44,
+      height: 48,
+      width: 48,
       decoration: BoxDecoration(
         color: color.withOpacity(0.15),
         shape: BoxShape.circle,
       ),
-      child: Icon(icon, color: color, size: 20),
+      child: Icon(icon, color: color, size: 22),
     );
   }
 }

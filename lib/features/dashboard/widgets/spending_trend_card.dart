@@ -13,21 +13,19 @@ class _SpendingTrendCardState extends State<SpendingTrendCard>
   late AnimationController _controller;
   late Animation<double> _animation;
 
-  final List<double> data = [900, 1800, 2800, 3120];
-  final double spacing = 1.0;
+  // Curve: starts low (WK1), rises to big peak (WK3), dips sharply, then shoots up (WK4)
+  // Matches image 2: gentle rise → peak middle → valley → spike end
+  final List<double> _data = [800, 1800, 2800, 3200, 1200, 600, 3600];
 
   @override
   void initState() {
     super.initState();
-
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 900),
+      duration: const Duration(milliseconds: 1200),
     );
-
     _animation =
         CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic);
-
     _controller.forward();
   }
 
@@ -37,120 +35,106 @@ class _SpendingTrendCardState extends State<SpendingTrendCard>
     super.dispose();
   }
 
-  List<FlSpot> _generateSpots(double progress) {
+  List<FlSpot> _spots(double progress) {
     return List.generate(
-      data.length,
-      (index) => FlSpot(index * spacing, data[index] * progress),
+      _data.length,
+      (i) => FlSpot(i.toDouble(), _data[i] * progress),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 12),
-      padding: const EdgeInsets.fromLTRB(26, 22, 26, 14),
-
-      /// MATCHED DARK CARD STYLE
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.fromLTRB(22, 20, 22, 0),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF0C1A2B),
-            Color(0xFF08121F),
-          ],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF1E3A8A).withOpacity(0.25),
-            blurRadius: 40,
-            spreadRadius: -10,
-            offset: const Offset(0, 25),
-          ),
-        ],
-        border: Border.all(
-          color: Colors.white.withOpacity(0.05),
-        ),
+        borderRadius: BorderRadius.circular(24),
+        color: const Color(0xFF0D1117),
+        border: Border.all(color: Colors.white.withOpacity(0.06)),
       ),
-
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
 
-          /// HEADER
+          /// ── HEADER: Title+Amount left | Badge right ────────────────
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                "Spending Trend",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF94A3B8),
-                ),
-              ),
-
-              Row(
-                children: const [
-                  Icon(Icons.trending_down,
-                      color: Color(0xFFFF6B4A), size: 18),
-                  SizedBox(width: 4),
-                  Text(
-                    "-5%",
-                    style: TextStyle(
-                      color: Color(0xFFFF6B4A),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              )
-            ],
-          ),
-
-          const SizedBox(height: 20),
-
-          /// AMOUNT ROW
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: const [
-              Row(
+              /// Left: title then amount stacked
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "\$3,120",
+                  const Text(
+                    "Spending Trend",
                     style: TextStyle(
-                      fontSize: 34,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xFF94A3B8),
                     ),
                   ),
-                  SizedBox(width: 10),
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 6),
-                    child: Text(
-                      "Total",
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: Color(0xFF64748B),
+                  const SizedBox(height: 6),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
+                    children: const [
+                      Text(
+                        "\$3,120",
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                          letterSpacing: -0.5,
+                        ),
                       ),
+                      SizedBox(width: 8),
+                      Text(
+                        "Total",
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
+              /// Right: percentage then "Last 30 Days" stacked
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Row(
+                    children: const [
+                      Icon(Icons.trending_down_rounded,
+                          color: Color(0xFFEF4444), size: 16),
+                      SizedBox(width: 3),
+                      Text(
+                        "5%",
+                        style: TextStyle(
+                          color: Color(0xFFEF4444),
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    "Last 30 Days",
+                    style: TextStyle(
+                      color: Color(0xFF64748B),
+                      fontSize: 11,
                     ),
                   ),
                 ],
               ),
-              Text(
-                "Last 30 Days",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF64748B),
-                ),
-              )
             ],
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 22),
 
-          /// GRAPH
+          /// ── LINE CHART ─────────────────────────────────────────────
           SizedBox(
             height: 160,
             child: AnimatedBuilder(
@@ -159,12 +143,12 @@ class _SpendingTrendCardState extends State<SpendingTrendCard>
                 return LineChart(
                   LineChartData(
                     minX: 0,
-                    maxX: (data.length - 1) * spacing,
+                    maxX: (_data.length - 1).toDouble(),
                     minY: 0,
-                    maxY: 3500,
+                    maxY: 4000,
+                    clipData: const FlClipData.all(),
                     gridData: const FlGridData(show: false),
                     borderData: FlBorderData(show: false),
-
                     titlesData: FlTitlesData(
                       leftTitles: const AxisTitles(
                           sideTitles: SideTitles(showTitles: false)),
@@ -172,52 +156,47 @@ class _SpendingTrendCardState extends State<SpendingTrendCard>
                           sideTitles: SideTitles(showTitles: false)),
                       topTitles: const AxisTitles(
                           sideTitles: SideTitles(showTitles: false)),
-
                       bottomTitles: AxisTitles(
                         sideTitles: SideTitles(
                           showTitles: true,
-                          interval: spacing,
-                          reservedSize: 36,
+                          reservedSize: 32,
+                          interval: 1,
                           getTitlesWidget: (value, meta) {
-                            int index =
-                                (value / spacing).round();
-
-                            if (index < 0 ||
-                                index >= data.length) {
-                              return const SizedBox();
+                            // WK1 at x=0, WK2 at x=2, WK3 at x=4, WK4 at x=6
+                            const wkPositions = [0.0, 2.0, 4.0, 6.0];
+                            const wkLabels = ["WK1", "WK2", "WK3", "WK4"];
+                            for (int i = 0; i < wkPositions.length; i++) {
+                              if ((value - wkPositions[i]).abs() < 0.1) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 10),
+                                  child: Text(
+                                    wkLabels[i],
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Color(0xFF475569),
+                                    ),
+                                  ),
+                                );
+                              }
                             }
-
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 12),
-                              child: Text(
-                                "WK${index + 1}",
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFF64748B),
-                                ),
-                              ),
-                            );
+                            return const SizedBox();
                           },
                         ),
                       ),
                     ),
-
                     lineBarsData: [
                       LineChartBarData(
-                        spots: _generateSpots(_animation.value),
+                        spots: _spots(_animation.value),
                         isCurved: true,
                         curveSmoothness: 0.45,
-                        color: const Color(0xFF243B55),
-                        barWidth: 3,
-
+                        color: const Color(0xFF3D5A80),
+                        barWidth: 2.5,
                         dotData: FlDotData(
                           show: true,
-                          getDotPainter:
-                              (spot, percent, barData, index) {
-                            if (index == data.length - 1) {
+                          getDotPainter: (spot, percent, barData, index) {
+                            if (index == _data.length - 1) {
                               return FlDotCirclePainter(
-                                radius: 6,
+                                radius: 5,
                                 color: Colors.white,
                                 strokeWidth: 0,
                               );
@@ -225,18 +204,18 @@ class _SpendingTrendCardState extends State<SpendingTrendCard>
                             return FlDotCirclePainter(
                               radius: 0,
                               color: Colors.transparent,
+                              strokeWidth: 0,
                             );
                           },
                         ),
-
                         belowBarData: BarAreaData(
                           show: true,
-                          gradient: const LinearGradient(
+                          gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Color(0xFF2F4663),
-                              Colors.transparent,
+                              const Color(0xFF1E3A5F).withOpacity(0.35),
+                              const Color(0xFF0D1117).withOpacity(0.0),
                             ],
                           ),
                         ),

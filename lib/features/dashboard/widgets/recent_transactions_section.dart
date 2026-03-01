@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../transactions/screens/daywise_transactions_screen.dart';
+import '../../navigation/main_navigation_screen.dart';
 
 class RecentTransactionsSection extends StatelessWidget {
   const RecentTransactionsSection({super.key});
@@ -25,12 +26,12 @@ class RecentTransactionsSection extends StatelessWidget {
 
             GestureDetector(
               onTap: () {
-                Navigator.push(
+                Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
-                    builder: (_) =>
-                        const DaywiseTransactionsScreen(),
+                    builder: (_) => const MainNavigationScreen(initialIndex: 1),
                   ),
+                  (route) => false,
                 );
               },
               child: const Text(

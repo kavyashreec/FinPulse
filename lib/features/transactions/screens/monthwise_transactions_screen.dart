@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
 import '../../notifications/notification_screen.dart';
 
-class WeekwiseTransactionsScreen extends StatefulWidget {
+class MonthwiseTransactionsScreen extends StatefulWidget {
   final void Function(int)? onTabSwitch;
   final int selectedTab;
 
-  const WeekwiseTransactionsScreen({
+  const MonthwiseTransactionsScreen({
     super.key,
     this.onTabSwitch,
-    this.selectedTab = 1,
+    this.selectedTab = 2,
   });
 
   @override
-  State<WeekwiseTransactionsScreen> createState() =>
-      _WeekwiseTransactionsScreenState();
+  State<MonthwiseTransactionsScreen> createState() =>
+      _MonthwiseTransactionsScreenState();
 }
 
-class _WeekwiseTransactionsScreenState
-    extends State<WeekwiseTransactionsScreen> {
-  late DateTime _weekStart;
+class _MonthwiseTransactionsScreenState
+    extends State<MonthwiseTransactionsScreen> {
+  late int _selectedMonth;
+  late int _selectedYear;
 
   // ── Search ───────────────────────────────────────────────────────────
   final TextEditingController _searchController = TextEditingController();
@@ -27,7 +28,9 @@ class _WeekwiseTransactionsScreenState
   @override
   void initState() {
     super.initState();
-    _weekStart = _getWeekStart(DateTime.now());
+    final now = DateTime.now();
+    _selectedMonth = now.month;
+    _selectedYear = now.year;
     _searchController.addListener(() {
       setState(() => _searchQuery = _searchController.text.toLowerCase());
     });
@@ -40,37 +43,50 @@ class _WeekwiseTransactionsScreenState
   }
 
   // ── Date helpers ─────────────────────────────────────────────────────
-  DateTime _getWeekStart(DateTime date) =>
-      date.subtract(Duration(days: date.weekday - 1));
-
-  DateTime get _weekEnd => _weekStart.add(const Duration(days: 6));
-
-  bool get _isCurrentWeek {
+  bool get _isCurrentMonth {
     final now = DateTime.now();
-    final cur = _getWeekStart(now);
-    return _weekStart.year == cur.year &&
-        _weekStart.month == cur.month &&
-        _weekStart.day == cur.day;
+    return _selectedMonth == now.month && _selectedYear == now.year;
   }
 
-  String _fmt(DateTime d) => "${_mShort(d.month)} ${d.day}";
+  void _prevMonth() {
+    setState(() {
+      if (_selectedMonth == 1) {
+        _selectedMonth = 12;
+        _selectedYear--;
+      } else {
+        _selectedMonth--;
+      }
+    });
+  }
 
-  String _mShort(int m) => const [
-        "Jan","Feb","Mar","Apr","May","Jun",
-        "Jul","Aug","Sep","Oct","Nov","Dec"
-      ][m - 1];
+  void _nextMonth() {
+    if (!_isCurrentMonth) {
+      setState(() {
+        if (_selectedMonth == 12) {
+          _selectedMonth = 1;
+          _selectedYear++;
+        } else {
+          _selectedMonth++;
+        }
+      });
+    }
+  }
 
   String _mFull(int m) => const [
         "January","February","March","April","May","June",
         "July","August","September","October","November","December"
       ][m - 1];
 
-  void _prevWeek() =>
-      setState(() => _weekStart = _weekStart.subtract(const Duration(days: 7)));
+  String _mShort(int m) => const [
+        "Jan","Feb","Mar","Apr","May","Jun",
+        "Jul","Aug","Sep","Oct","Nov","Dec"
+      ][m - 1];
 
-  void _nextWeek() {
-    final next = _weekStart.add(const Duration(days: 7));
-    if (!next.isAfter(DateTime.now())) setState(() => _weekStart = next);
+  int get _daysInMonth {
+    final firstNext = (_selectedMonth < 12)
+        ? DateTime(_selectedYear, _selectedMonth + 1, 1)
+        : DateTime(_selectedYear + 1, 1, 1);
+    return firstNext.subtract(const Duration(days: 1)).day;
   }
 
   // ── All transactions ─────────────────────────────────────────────────
@@ -79,7 +95,8 @@ class _WeekwiseTransactionsScreenState
           "icon": Icons.restaurant_rounded,
           "iconColor": const Color(0xFFEAB308),
           "title": "Starbucks Coffee",
-          "date": DateTime.now(),
+          "date": DateTime(_selectedYear, _selectedMonth,
+              DateTime.now().day.clamp(1, _daysInMonth)),
           "time": "08:45 AM",
           "amount": -12.50,
           "category": "FOOD",
@@ -88,7 +105,8 @@ class _WeekwiseTransactionsScreenState
           "icon": Icons.shopping_bag_rounded,
           "iconColor": const Color(0xFFFF8A34),
           "title": "Electronics Hub",
-          "date": DateTime.now().subtract(const Duration(days: 1)),
+          "date": DateTime(_selectedYear, _selectedMonth,
+              (DateTime.now().day - 1).clamp(1, _daysInMonth)),
           "time": "11:30 AM",
           "amount": -1199.00,
           "category": "SHOPPING",
@@ -97,7 +115,8 @@ class _WeekwiseTransactionsScreenState
           "icon": Icons.directions_car_rounded,
           "iconColor": const Color(0xFF8B5CF6),
           "title": "Uber Trip",
-          "date": DateTime.now().subtract(const Duration(days: 1)),
+          "date": DateTime(_selectedYear, _selectedMonth,
+              (DateTime.now().day - 1).clamp(1, _daysInMonth)),
           "time": "06:20 PM",
           "amount": -24.50,
           "category": "TRANSPORT",
@@ -106,34 +125,36 @@ class _WeekwiseTransactionsScreenState
           "icon": Icons.receipt_long_rounded,
           "iconColor": const Color(0xFF3B82F6),
           "title": "Monthly Rent",
-          "date": DateTime.now().subtract(const Duration(days: 2)),
-          "time": "10:00 PM",
-          "amount": -950.00,
+          "date": DateTime(_selectedYear, _selectedMonth, 1),
+          "time": "10:00 AM",
+          "amount": -1500.00,
           "category": "BILLS",
         },
         {
           "icon": Icons.local_grocery_store_rounded,
           "iconColor": const Color(0xFF22C55E),
           "title": "Fresh Mart Groceries",
-          "date": DateTime.now().subtract(const Duration(days: 2)),
+          "date": DateTime(_selectedYear, _selectedMonth,
+              (DateTime.now().day - 5).clamp(1, _daysInMonth)),
           "time": "03:15 PM",
-          "amount": -87.40,
+          "amount": -210.80,
           "category": "GROCERIES",
         },
         {
           "icon": Icons.favorite_rounded,
           "iconColor": const Color(0xFFEF4444),
           "title": "Apollo Pharmacy",
-          "date": DateTime.now().subtract(const Duration(days: 3)),
+          "date": DateTime(_selectedYear, _selectedMonth,
+              (DateTime.now().day - 6).clamp(1, _daysInMonth)),
           "time": "12:00 PM",
-          "amount": -54.00,
+          "amount": -120.00,
           "category": "HEALTH",
         },
         {
           "icon": Icons.movie_rounded,
           "iconColor": const Color(0xFFEC4899),
           "title": "Netflix Subscription",
-          "date": DateTime.now().subtract(const Duration(days: 4)),
+          "date": DateTime(_selectedYear, _selectedMonth, 1),
           "time": "07:00 AM",
           "amount": -15.99,
           "category": "ENTERTAINMENT",
@@ -141,10 +162,10 @@ class _WeekwiseTransactionsScreenState
         {
           "icon": Icons.attach_money_rounded,
           "iconColor": const Color(0xFF22C55E),
-          "title": "Freelance Payment",
-          "date": DateTime.now().subtract(const Duration(days: 3)),
+          "title": "Salary Credit",
+          "date": DateTime(_selectedYear, _selectedMonth, 1),
           "time": "09:00 AM",
-          "amount": 2800.00,
+          "amount": 4800.00,
           "category": "INCOME",
         },
       ];
@@ -160,17 +181,17 @@ class _WeekwiseTransactionsScreenState
 
   // ── Categories ────────────────────────────────────────────────────────
   List<Map<String, dynamic>> get _categories {
-    final seed = _weekStart.millisecondsSinceEpoch ~/ 1000;
+    final seed = _selectedMonth * _selectedYear;
     final r = (seed % 100) / 100.0;
     return [
-      {"icon": Icons.receipt_long_rounded,       "color": const Color(0xFF3B82F6), "label": "Bills",          "count": 2 + (seed % 3),  "amount": 850.0 + r * 400},
-      {"icon": Icons.shopping_cart_rounded,       "color": const Color(0xFFFF8A34), "label": "Shopping",       "count": 8 + (seed % 6),  "amount": 620.0 + r * 300},
-      {"icon": Icons.favorite_rounded,            "color": const Color(0xFFEF4444), "label": "Health",         "count": 1 + (seed % 4),  "amount": 180.0 + r * 150},
-      {"icon": Icons.local_grocery_store_rounded, "color": const Color(0xFF22C55E), "label": "Groceries",      "count": 4 + (seed % 5),  "amount": 340.0 + r * 200},
-      {"icon": Icons.restaurant_rounded,          "color": const Color(0xFFEAB308), "label": "Food",           "count": 12 + (seed % 10),"amount": 290.0 + r * 180},
-      {"icon": Icons.directions_car_rounded,      "color": const Color(0xFF8B5CF6), "label": "Transport",      "count": 6 + (seed % 5),  "amount": 140.0 + r * 100},
-      {"icon": Icons.movie_rounded,               "color": const Color(0xFFEC4899), "label": "Entertainment",  "count": 3 + (seed % 4),  "amount": 210.0 + r * 120},
-      {"icon": Icons.attach_money_rounded,        "color": const Color(0xFF22C55E), "label": "Income",         "count": 1 + (seed % 2),  "amount": 2800.0 + r * 500, "isIncome": true},
+      {"icon": Icons.receipt_long_rounded,       "color": const Color(0xFF3B82F6), "label": "Bills",         "count": 4 + (seed % 4),  "amount": 3400.0 + r * 600},
+      {"icon": Icons.shopping_cart_rounded,       "color": const Color(0xFFFF8A34), "label": "Shopping",      "count": 18 + (seed % 10),"amount": 2480.0 + r * 800},
+      {"icon": Icons.favorite_rounded,            "color": const Color(0xFFEF4444), "label": "Health",        "count": 3 + (seed % 5),  "amount": 720.0 + r * 300},
+      {"icon": Icons.local_grocery_store_rounded, "color": const Color(0xFF22C55E), "label": "Groceries",     "count": 12 + (seed % 8), "amount": 1360.0 + r * 400},
+      {"icon": Icons.restaurant_rounded,          "color": const Color(0xFFEAB308), "label": "Food",          "count": 34 + (seed % 15),"amount": 1160.0 + r * 500},
+      {"icon": Icons.directions_car_rounded,      "color": const Color(0xFF8B5CF6), "label": "Transport",     "count": 20 + (seed % 10),"amount": 560.0 + r * 200},
+      {"icon": Icons.movie_rounded,               "color": const Color(0xFFEC4899), "label": "Entertainment", "count": 8 + (seed % 6),  "amount": 840.0 + r * 300},
+      {"icon": Icons.attach_money_rounded,        "color": const Color(0xFF22C55E), "label": "Income",        "count": 2 + (seed % 2),  "amount": 9800.0 + r * 2000, "isIncome": true},
     ];
   }
 
@@ -217,10 +238,9 @@ class _WeekwiseTransactionsScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildWeekSelector(),
+                    _buildMonthSelector(),
                     const SizedBox(height: 20),
 
-                    // Only show spending card when not searching
                     if (_searchQuery.isEmpty) ...[
                       _buildSpendingCard(),
                       const SizedBox(height: 28),
@@ -228,14 +248,13 @@ class _WeekwiseTransactionsScreenState
 
                     Text(
                       _searchQuery.isEmpty
-                          ? "TRANSACTIONS FOR THIS WEEK"
+                          ? "TRANSACTIONS FOR THIS MONTH"
                           : "SEARCH RESULTS",
                       style: const TextStyle(
-                        fontSize: 12,
-                        letterSpacing: 1.4,
-                        fontWeight: FontWeight.w600,
-                        color: Color(0xFF64748B),
-                      ),
+                          fontSize: 12,
+                          letterSpacing: 1.4,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF64748B)),
                     ),
                     const SizedBox(height: 16),
 
@@ -277,7 +296,6 @@ class _WeekwiseTransactionsScreenState
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
       child: Row(
         children: [
-          // Empty space to balance the bell icon on the right
           const SizedBox(width: 40),
           const Expanded(
             child: Center(
@@ -328,7 +346,8 @@ class _WeekwiseTransactionsScreenState
                 style: const TextStyle(color: Colors.white, fontSize: 15),
                 decoration: const InputDecoration(
                   hintText: "Search transactions",
-                  hintStyle: TextStyle(color: Color(0xFF64748B), fontSize: 15),
+                  hintStyle:
+                      TextStyle(color: Color(0xFF64748B), fontSize: 15),
                   border: InputBorder.none,
                   isDense: true,
                   contentPadding: EdgeInsets.zero,
@@ -343,7 +362,8 @@ class _WeekwiseTransactionsScreenState
                 },
                 child: const Padding(
                   padding: EdgeInsets.only(right: 12),
-                  child: Icon(Icons.close, color: Color(0xFF64748B), size: 18),
+                  child:
+                      Icon(Icons.close, color: Color(0xFF64748B), size: 18),
                 ),
               ),
           ],
@@ -395,37 +415,38 @@ class _WeekwiseTransactionsScreenState
     );
   }
 
-  Widget _buildWeekSelector() {
+  Widget _buildMonthSelector() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         GestureDetector(
-          onTap: _prevWeek,
-          child: const Icon(Icons.chevron_left, color: Colors.white70, size: 28),
+          onTap: _prevMonth,
+          child: const Icon(Icons.chevron_left,
+              color: Colors.white70, size: 28),
         ),
         const SizedBox(width: 16),
         Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              "${_fmt(_weekStart)} - ${_fmt(_weekEnd)}",
+              "${_mFull(_selectedMonth)} $_selectedYear",
               style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,
                   fontWeight: FontWeight.w600),
             ),
             Text(
-              _isCurrentWeek
-                  ? "CURRENT WEEK"
-                  : _mFull(_weekStart.month).toUpperCase(),
+              _isCurrentMonth ? "CURRENT MONTH" : "$_selectedYear",
               style: const TextStyle(
-                  color: Color(0xFF64748B), fontSize: 11, letterSpacing: 1.2),
+                  color: Color(0xFF64748B),
+                  fontSize: 11,
+                  letterSpacing: 1.2),
             ),
           ],
         ),
         const SizedBox(width: 16),
         GestureDetector(
-          onTap: _nextWeek,
+          onTap: _nextMonth,
           child: Container(
             height: 30,
             width: 30,
@@ -433,7 +454,7 @@ class _WeekwiseTransactionsScreenState
                 color: Color(0xFF1E3A5F), shape: BoxShape.circle),
             child: Icon(
               Icons.chevron_right,
-              color: _isCurrentWeek
+              color: _isCurrentMonth
                   ? const Color(0xFF3B82F6).withOpacity(0.3)
                   : Colors.white70,
               size: 20,
@@ -456,14 +477,16 @@ class _WeekwiseTransactionsScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text("WEEKLY SPENDING",
-                  style: TextStyle(
-                      fontSize: 12,
-                      letterSpacing: 1.4,
-                      color: Color(0xFF94A3B8))),
-              SizedBox(height: 8),
-            ]),
+            const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("MONTHLY SPENDING",
+                      style: TextStyle(
+                          fontSize: 12,
+                          letterSpacing: 1.4,
+                          color: Color(0xFF94A3B8))),
+                  SizedBox(height: 8),
+                ]),
             const Spacer(),
             _miniBarChart(),
           ]),
@@ -486,7 +509,7 @@ class _WeekwiseTransactionsScreenState
   }
 
   Widget _miniBarChart() {
-    final heights = [20.0, 30.0, 18.0, 42.0, 28.0, 22.0, 35.0];
+    final heights = [25.0, 38.0, 20.0, 48.0, 32.0, 28.0, 40.0];
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: heights
@@ -495,7 +518,7 @@ class _WeekwiseTransactionsScreenState
                 height: h,
                 margin: const EdgeInsets.only(left: 4),
                 decoration: BoxDecoration(
-                  color: h == 42
+                  color: h == 48
                       ? const Color(0xFF3B82F6)
                       : const Color(0xFF1E3A5F),
                   borderRadius: BorderRadius.circular(4),
@@ -519,14 +542,16 @@ class _WeekwiseTransactionsScreenState
         ),
         const SizedBox(width: 14),
         Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(c["label"] as String,
                 style: const TextStyle(
                     color: Colors.white,
                     fontSize: 15,
                     fontWeight: FontWeight.w600)),
             Text("${c["count"]} items",
-                style: const TextStyle(color: Color(0xFF64748B), fontSize: 12)),
+                style:
+                    const TextStyle(color: Color(0xFF64748B), fontSize: 12)),
           ]),
         ),
         Text(
@@ -559,18 +584,19 @@ class _WeekwiseTransactionsScreenState
           ),
           const SizedBox(width: 14),
           Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(tx["title"] as String,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600)),
-              const SizedBox(height: 4),
-              Text(
-                _formatSubtitle(tx["time"] as String, tx["date"] as DateTime),
-                style: const TextStyle(
-                    color: Color(0xFF64748B), fontSize: 13)),
-            ]),
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(tx["title"] as String,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 4),
+                  Text(_formatSubtitle(tx["time"] as String, tx["date"] as DateTime),
+                      style: const TextStyle(
+                          color: Color(0xFF64748B), fontSize: 13)),
+                ]),
           ),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
             Text(
@@ -584,8 +610,8 @@ class _WeekwiseTransactionsScreenState
             ),
             const SizedBox(height: 4),
             Text(tx["category"] as String,
-                style:
-                    const TextStyle(color: Color(0xFF64748B), fontSize: 12)),
+                style: const TextStyle(
+                    color: Color(0xFF64748B), fontSize: 12)),
           ]),
         ],
       ),
@@ -604,7 +630,8 @@ class _WeekwiseTransactionsScreenState
           Text(
             "No transactions found for\n\"$_searchQuery\"",
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Color(0xFF64748B), fontSize: 15),
+            style:
+                const TextStyle(color: Color(0xFF64748B), fontSize: 15),
           ),
         ],
       ),
